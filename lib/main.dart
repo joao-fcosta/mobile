@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 // Constantes
-const String apiToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjM2MmZkMjUyLWUzOTktNGIwNi05OTIxLTAyZjJiMzMxZTVhYyIsImlhdCI6MTc1NjQyNjEyOSwic3ViIjoiZGV2ZWxvcGVyLzRhZTBhMjVlLTc2ZjEtYzM0Yy01MTMyLTllMzdjYWJlOWRhZiIsInNjb3BlcyI6WyJicmF3bHN0YXJzIl0sImxpbWl0cyI6W3sidGllciI6ImRldmVsb3Blci9zaWx2ZXIiLCJ0eXBlIjoidGhyb3R0bGluZyJ9LHsiY2lkcnMiOlsiMTcwLjIzOS4yMjUuMjYiXSwidHlwZSI6ImNsaWVudCJ9XX0.43iyiWvoQPkrk-dwVnHaNOY3VRb58dBPS1PoGnzHn3c75ZLUePINodSXBXDk6rrclrvqtf8Jm-5mNUcghQtDYA"; // coloque sua chave aqui
-
+const String apiToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImRkMWRhNDczLTlhZTAtNGZiOS05NTk5LTY1NjBiZGJhY2U3ZCIsImlhdCI6MTc1ODA0MDMxOSwic3ViIjoiZGV2ZWxvcGVyLzRhZTBhMjVlLTc2ZjEtYzM0Yy01MTMyLTllMzdjYWJlOWRhZiIsInNjb3BlcyI6WyJicmF3bHN0YXJzIl0sImxpbWl0cyI6W3sidGllciI6ImRldmVsb3Blci9zaWx2ZXIiLCJ0eXBlIjoidGhyb3R0bGluZyJ9LHsiY2lkcnMiOlsiNDUuMjM0LjEzNy4zOSJdLCJ0eXBlIjoiY2xpZW50In1dfQ.l-nSQapMWuXEumBJMwi1bAxmHCtmv_TXRmJqbKpzzBgeR7SKH2Oxmyo8dvhsCabPzE8Ha2VWfnbk0szOEQTquA";
 void main() {
   runApp(const MyApp());
 }
@@ -16,8 +15,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Brawl Stars Helper',
-      theme: ThemeData.dark(),
+      title: 'Brawl Stars - Meta de Troféus',
+      theme: ThemeData.dark().copyWith(
+        textTheme: ThemeData.dark().textTheme.apply(
+              fontFamily: 'lilitaone-regular-webfont',
+            ),
+      ),
       home: const HomePage(),
     );
   }
@@ -32,15 +35,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _controller = TextEditingController();
-  List<Map<String, dynamic>> recomendados = [];
+  final TextEditingController _tagController = TextEditingController();
+  final TextEditingController _metaController = TextEditingController();
   bool loading = false;
+  int? totalAtual;
+  int? totalComMeta;
 
-  // Busca dados do jogador na API
-  Future<void> buscarPlayer(String playerTag) async {
-    if (playerTag.isEmpty) return;
+  // Busca dados do jogador na API e calcula os troféus
+  Future<void> calcularTrofeus(String playerTag, int meta) async {
+    if (playerTag.isEmpty || meta <= 0) return;
 
-    setState(() => loading = true);
+    setState(() {
+      loading = true;
+      totalAtual = null;
+      totalComMeta = null;
+    });
 
     final url = Uri.parse("https://api.brawlstars.com/v1/players/%23$playerTag");
     final response = await http.get(
@@ -51,11 +60,21 @@ class _HomePageState extends State<HomePage> {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final brawlers = List<Map<String, dynamic>>.from(data["brawlers"]);
+
+      int somaAtual = 0;
+      int somaComMeta = 0;
+
+      for (var b in brawlers) {
+        final int trofeus = b["trophies"] ?? 0;
+        somaAtual += trofeus;
+        somaComMeta += trofeus >= meta ? trofeus : meta;
+      }
+
       setState(() {
-        recomendados = analisarBrawlers(brawlers);
+        totalAtual = somaAtual;
+        totalComMeta = somaComMeta;
       });
     } else {
-      // Exibe erro para o usuário
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erro: ${response.body}")),
       );
@@ -64,94 +83,74 @@ class _HomePageState extends State<HomePage> {
     setState(() => loading = false);
   }
 
-  // Analisa os brawlers e calcula o score
-  List<Map<String, dynamic>> analisarBrawlers(List<Map<String, dynamic>> brawlers) {
-    return brawlers.map((b) {
-      int score = 0;
-      score += ((1000 - b["trophies"]).clamp(0, 10000) ~/ 1);
-      score += ((b["power"] ?? 0) as int) * 1;
-      score += ((b["starPowers"]?.length ?? 0) as int) * 1;
-      score += ((b["gadgets"]?.length ?? 0) as int) * 1;
-      score += ((b["gears"]?.length ?? 0) as int) * 1;
-
-      return {
-        "nome": b["name"],
-        "trofeus": b["trophies"],
-        "nivel": b["power"],
-        "score": score,
-      };
-    }).toList()
-      ..sort((a, b) => b["score"].compareTo(a["score"]));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Brawl Stars Helper")),
+      appBar: AppBar(title: const Text("Brawl Stars - Meta de Troféus")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            _TagInputField(controller: _controller, onSubmitted: buscarPlayer),
+            // Campo da TAG
+            TextField(
+              controller: _tagController,
+              decoration: const InputDecoration(
+                labelText: "Digite sua TAG (sem #)",
+                border: OutlineInputBorder(),
+              ),
+            ),
             const SizedBox(height: 12),
+
+            // Campo da meta
+            TextField(
+              controller: _metaController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: "Meta de troféus por brawler (ex: 700)",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Botão de buscar
             ElevatedButton(
-              onPressed: () => buscarPlayer(_controller.text.trim()),
-              child: const Text("Buscar"),
+              onPressed: () {
+                final tag = _tagController.text.trim();
+                final meta = int.tryParse(_metaController.text.trim()) ?? 0;
+                calcularTrofeus(tag, meta);
+              },
+              child: const Text("Calcular"),
             ),
             const SizedBox(height: 20),
-            if (loading)
-              const CircularProgressIndicator()
-            else if (recomendados.isNotEmpty)
-              Expanded(child: _BrawlerList(brawlers: recomendados)),
+
+            // Loading
+            if (loading) const CircularProgressIndicator(),
+
+            // Resultado
+            if (!loading && totalAtual != null && totalComMeta != null)
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Troféus atuais: $totalAtual",
+                          style: const TextStyle(fontSize: 18)),
+                      const SizedBox(height: 10),
+                      Text("Troféus com meta: $totalComMeta",
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      Text(
+                        "Diferença: ${totalComMeta! - totalAtual!}",
+                        style: const TextStyle(color: Colors.greenAccent),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
-    );
-  }
-}
-
-// Widget para campo de entrada da tag
-class _TagInputField extends StatelessWidget {
-  final TextEditingController controller;
-  final Function(String) onSubmitted;
-
-  const _TagInputField({
-    required this.controller,
-    required this.onSubmitted,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      decoration: const InputDecoration(
-        labelText: "Digite sua tag (sem #)",
-        border: OutlineInputBorder(),
-      ),
-      onSubmitted: onSubmitted,
-    );
-  }
-}
-
-// Widget para lista de brawlers recomendados
-class _BrawlerList extends StatelessWidget {
-  final List<Map<String, dynamic>> brawlers;
-
-  const _BrawlerList({required this.brawlers});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: brawlers.length,
-      itemBuilder: (context, index) {
-        final b = brawlers[index];
-        return Card(
-          child: ListTile(
-            title: Text("${b["nome"]} - Score: ${b["score"]}"),
-            subtitle: Text("🏆 ${b["trofeus"]} | 🔋 Nível ${b["nivel"]}"),
-          ),
-        );
-      },
     );
   }
 }
