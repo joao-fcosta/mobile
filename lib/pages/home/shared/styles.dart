@@ -6,7 +6,7 @@ const TextStyle heading1Light = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
   fontSize: 93,
   fontWeight: FontWeight.w300,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
   letterSpacing: 1.5,
 );
 
@@ -14,7 +14,7 @@ const TextStyle heading2Light = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
   fontSize: 58,
   fontWeight: FontWeight.w300,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
   letterSpacing: 1.5
 );
 
@@ -22,7 +22,7 @@ const TextStyle heading3Regular = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
   fontSize: 46,
   fontWeight: FontWeight.w400,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
   letterSpacing: 1.5
 );
 
@@ -30,7 +30,7 @@ const TextStyle heading4Regular = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
   fontSize: 33,
   fontWeight: FontWeight.w400,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
   letterSpacing: 1.5
 );
 
@@ -38,7 +38,7 @@ const TextStyle heading5Regular = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
   fontSize: 23,
   fontWeight: FontWeight.w400,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
   letterSpacing: 1.5
 );
 
@@ -46,7 +46,7 @@ const TextStyle subtitle1Regular = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
   fontSize: 15,
   fontWeight: FontWeight.w400,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
   letterSpacing: 0.15
 );
 
@@ -54,7 +54,7 @@ const TextStyle subtitle2Medium = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
   fontSize: 13,
   fontWeight: FontWeight.w500,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
   letterSpacing: 0.1
 );
 
@@ -62,7 +62,7 @@ const TextStyle paragraph1Regular = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
   fontSize: 15,
   fontWeight: FontWeight.w400,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
   letterSpacing: 0.5
 );
 
@@ -70,7 +70,7 @@ const TextStyle paragraph2Medium = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
   fontSize: 13,
   fontWeight: FontWeight.w400,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
   letterSpacing: 0.25
 );
 
@@ -78,7 +78,7 @@ const TextStyle label1Semibold = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
   fontSize: 15,
   fontWeight: FontWeight.w600,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
 );
 
 const TextStyle label2Regular = TextStyle(
@@ -86,7 +86,7 @@ const TextStyle label2Regular = TextStyle(
   fontSize: 10,
   height: 16,
   fontWeight: FontWeight.w400,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
 );
 
 const TextStyle label2Semibold = TextStyle(
@@ -94,7 +94,7 @@ const TextStyle label2Semibold = TextStyle(
   fontSize: 10,
   height: 16,
   fontWeight: FontWeight.w600,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
 );
 
 const TextStyle button1Bold = TextStyle(

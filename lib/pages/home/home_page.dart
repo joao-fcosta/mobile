@@ -8,7 +8,8 @@ import 'Components/Buttons/ActionButton/action_button.dart';
 import 'Components/Buttons/ActionButton/action_button_view_model.dart';
 import 'widgets/brawler_card.dart';
 import 'widgets/totals_header.dart';
-import '../home/shared/colors.dart';
+import '../home/shared/styles.dart';
+import '../design/design.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,7 +30,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> calcular() async {
     final tag = _tagController.text.trim();
-    final meta = int.tryParse(_metaController.text.trim()) ?? 0;
+    final meta = 700;
 
     if (tag.isEmpty || meta <= 0) {
       ScaffoldMessenger.of(context)
@@ -57,6 +58,14 @@ class _HomePageState extends State<HomePage> {
       setState(() => loading = false);
     }
   }
+  // Dentro da classe _HomePageState
+  void _navigateToDesignPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const ButtonScreen(), // Navega para o widget Desing
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -73,6 +82,17 @@ class _HomePageState extends State<HomePage> {
         title: const Text("MANU BRAWL"),
         backgroundColor: const Color(0xFF478CEE), // Um azul mais claro para a AppBar
         foregroundColor: Colors.white,
+        actions: [ // <-- Use a propriedade 'actions' que recebe uma lista de Widgets
+          ActionButton.instantiate(
+            viewModel: ActionButtonViewModel(
+              size: ActionButtonSize.small,
+              style: ActionButtonStyle.secondary,
+              text: "Design",
+              onPressed: _navigateToDesignPage,
+              
+            ),
+          ),
+        ],
          // Cor do texto e ícones na AppBar
         elevation: 4, // Adiciona uma pequena sombra para destacar
       ),
@@ -80,6 +100,7 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Text('TAG:', style: button1Bold, textAlign: TextAlign.left),
             StyledInputField.instantiate( // Certifique-se que o import está correto (input_text.dart -> input_text.dart)
               viewModel: InputTextViewModel(
                 controller: _tagController,
@@ -87,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                 password: false,
               ),
             ),
-            const SizedBox(height: 12),
+            /* /* const SizedBox(height: 12),
             StyledInputField.instantiate(
               viewModel: InputTextViewModel(
                 controller: _metaController,
@@ -98,8 +119,8 @@ class _HomePageState extends State<HomePage> {
                   if (int.tryParse(value.trim()) == null) return "Digite um número válido";
                   return null;
                 },
-              ),
-            ),
+              ), */
+            ), */
             const SizedBox(height: 12),
             ActionButton.instantiate(
               viewModel: ActionButtonViewModel(
@@ -121,7 +142,6 @@ class _HomePageState extends State<HomePage> {
                     TotalsHeader(
                       totalAtual: totalAtual!,
                       totalComMeta: totalComMeta!,
-                      diferenca: diferenca!,
                     ),
                     Expanded(
                       child: ListView.builder(
