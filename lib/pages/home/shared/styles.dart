@@ -99,22 +99,22 @@ const TextStyle label2Semibold = TextStyle(
 
 const TextStyle button1Bold = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
-  fontSize: 16,
+  fontSize: 18,
   fontWeight: FontWeight.w700,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
 );
 
 const TextStyle button2Semibold = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
-  fontSize: 14,
+  fontSize: 16,
   fontWeight: FontWeight.w600,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
 );
 
 const TextStyle button3Semibold = TextStyle(
   fontFamily: 'lilitaone-regular-webfont',
-  fontSize: 12,
+  fontSize: 14,
   fontWeight: FontWeight.w600,
-  color: normalPrimaryBaseColorLight,
+  color: lightPrimaryBaseColorDark,
 );
 

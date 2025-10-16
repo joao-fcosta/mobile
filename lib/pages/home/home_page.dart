@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import '../../data/api/brawlstars_api.dart';
 import '../../data/models/brawler.dart';
 import '../../services/trophy_calculator.dart';
-import 'Components/InputField/input_text.dart';
+import 'Components/InputField/input_text.dart'; // Corrigido para StyledInputField
 import 'Components/InputField/input_text_view_model.dart';
 import 'Components/Buttons/ActionButton/action_button.dart';
 import 'Components/Buttons/ActionButton/action_button_view_model.dart';
 import 'widgets/brawler_card.dart';
 import 'widgets/totals_header.dart';
+import '../home/shared/colors.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,7 +31,11 @@ class _HomePageState extends State<HomePage> {
     final tag = _tagController.text.trim();
     final meta = int.tryParse(_metaController.text.trim()) ?? 0;
 
-    if (tag.isEmpty || meta <= 0) return;
+    if (tag.isEmpty || meta <= 0) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Por favor, preencha a TAG e a Meta.")));
+      return;
+    }
 
     setState(() => loading = true);
 
@@ -47,24 +52,38 @@ class _HomePageState extends State<HomePage> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
+          .showSnackBar(SnackBar(content: Text("Erro: ${e.toString()}")));
+    } finally { // Use finally para garantir que o loading seja desativado
+      setState(() => loading = false);
     }
+  }
 
-    setState(() => loading = false);
+  @override
+  void dispose() {
+    _tagController.dispose();
+    _metaController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Brawl Stars - Meta de Troféus")),
+      backgroundColor: const Color(0xFF2B5CDD), // Um azul escuro para o fundo
+      appBar: AppBar(
+        title: const Text("MANU BRAWL"),
+        backgroundColor: const Color(0xFF478CEE), // Um azul mais claro para a AppBar
+        foregroundColor: Colors.white,
+         // Cor do texto e ícones na AppBar
+        elevation: 4, // Adiciona uma pequena sombra para destacar
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            StyledInputField.instantiate(
+            StyledInputField.instantiate( // Certifique-se que o import está correto (input_text.dart -> input_text.dart)
               viewModel: InputTextViewModel(
                 controller: _tagController,
-                placeholder: "Digite sua TAG (sem #)",
+                placeholder: "",
                 password: false,
               ),
             ),
@@ -84,14 +103,17 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 12),
             ActionButton.instantiate(
               viewModel: ActionButtonViewModel(
-                size: ActionButtonSize.medium,
-                style: ActionButtonStyle.primary,
-                text: "Calcular",
+                size: ActionButtonSize.large,
+                style: ActionButtonStyle.secondary,
+                text: "BUSCAR",
                 onPressed: calcular,
               ),
             ),
             const SizedBox(height: 20),
-            if (loading) const CircularProgressIndicator(),
+            if (loading) 
+              const CircularProgressIndicator(
+                color: Color(0xFF007BFF), // Cor azul para o indicador de progresso
+              ),
             if (!loading && totalAtual != null)
               Expanded(
                 child: Column(
