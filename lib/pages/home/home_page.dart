@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../../data/api/brawlstars_api.dart';
 import '../../data/models/brawler.dart';
 import '../../services/trophy_calculator.dart';
+import 'Components/InputField/input_text.dart';
+import 'Components/InputField/input_text_view_model.dart';
+import 'Components/Buttons/ActionButton/action_button.dart';
+import 'Components/Buttons/ActionButton/action_button_view_model.dart';
 import 'widgets/brawler_card.dart';
 import 'widgets/totals_header.dart';
 
@@ -57,26 +61,34 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              controller: _tagController,
-              decoration: const InputDecoration(
-                labelText: "Digite sua TAG (sem #)",
-                border: OutlineInputBorder(),
+            StyledInputField.instantiate(
+              viewModel: InputTextViewModel(
+                controller: _tagController,
+                placeholder: "Digite sua TAG (sem #)",
+                password: false,
               ),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _metaController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: "Meta de troféus por brawler (ex: 700)",
-                border: OutlineInputBorder(),
+            StyledInputField.instantiate(
+              viewModel: InputTextViewModel(
+                controller: _metaController,
+                placeholder: "Meta de troféus por brawler (ex: 700)",
+                password: false,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) return "Obrigatório";
+                  if (int.tryParse(value.trim()) == null) return "Digite um número válido";
+                  return null;
+                },
               ),
             ),
             const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: calcular,
-              child: const Text("Calcular"),
+            ActionButton.instantiate(
+              viewModel: ActionButtonViewModel(
+                size: ActionButtonSize.medium,
+                style: ActionButtonStyle.primary,
+                text: "Calcular",
+                onPressed: calcular,
+              ),
             ),
             const SizedBox(height: 20),
             if (loading) const CircularProgressIndicator(),
