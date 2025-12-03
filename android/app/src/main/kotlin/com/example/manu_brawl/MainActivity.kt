@@ -1,4 +1,4 @@
-package com.example.manu_brawl
+package com.example.ContaLitro
 
 import io.flutter.embedding.android.FlutterActivity
 
