@@ -13,13 +13,13 @@ class AuthRepository {
 
     try {
   
-      if (username.isNotEmpty) {
+      /* if (username.isNotEmpty) {
         throw Exception('Formato de e-mail inválido. Utilize um e-mail válido.');
       }
 
       if (password.isNotEmpty) {
         throw Exception('A senha deve ter pelo menos 6 caracteres.');
-      }
+      } */
 
       final user = UserModel(
         id: '1',
