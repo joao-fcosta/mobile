@@ -144,7 +144,7 @@ class _LoginViewState extends State<LoginView> {
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: neutralBlack.withOpacity(0.9),
+          backgroundColor: Color(0xFF020617),
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),

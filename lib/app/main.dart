@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../core/theme.dart';
 import '../resources/shared/app_coordinator.dart';
 
 void main() {
@@ -16,7 +15,6 @@ class Application extends StatelessWidget {
     return MaterialApp(title: "ContaLitro",
         navigatorKey: coordinator.navigatorKey,
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.theme,
         home: coordinator.startApp());
   }
 }

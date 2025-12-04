@@ -1,1 +1,0 @@
-const String apiBaseUrl = "https://api.brawlstars.com/v1";

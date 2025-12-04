@@ -8,6 +8,8 @@ import '../../DesignSystem/Components/InputField/input_text.dart';
 import '../../DesignSystem/Components/InputField/input_text_view_model.dart';
 import '../../DesignSystem/Components/Spinner/spinner.dart';
 import '../../DesignSystem/Components/Spinner/spinner_view_model.dart';
+import '../../DesignSystem/Components/Result/result.dart';
+  import 'home_service.dart';
 import '../../resources/shared/colors.dart';
 import 'home_view_model.dart';
 
@@ -48,43 +50,33 @@ class _HomeViewState extends State<HomeView> {
     super.dispose();
   }
 
-  Future<void> _consultar() async {
-    setState(() {
-      _isLoading = true;
-      _result = null;
-    });
 
-    final body = {
-      "year": int.tryParse(yearCtrl.text) ?? 2000,
-      "make": makeCtrl.text,
-      "model": modelCtrl.text,
-      "enginesize": double.tryParse(engineCtrl.text) ?? 2.0,
-      "cylinders": int.tryParse(cylindersCtrl.text) ?? 4,
-      "vehicleclass": classCtrl.text,
-      "transmission": transmissionCtrl.text,
-      "fuel": fuelCtrl.text,
-      "distance_km": double.tryParse(distanceCtrl.text) ?? 150
-    };
 
-    try {
-      final response = await http.post(
-        Uri.parse("http://127.0.0.1:8000/predict"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(body),
-      );
+Future<void> _consultar() async {
+  setState(() {
+    _isLoading = true;
+    _result = null;
+  });
 
-      if (response.statusCode == 200) {
-        setState(() => _result = jsonDecode(response.body));
-      }
-    } catch (e) {
-      // aqui você pode mostrar snackbar se quiser
-      debugPrint("Erro: $e");
-    }
+  final body = {
+    "year": int.tryParse(yearCtrl.text) ?? 2000,
+    "make": makeCtrl.text,
+    "model": modelCtrl.text,
+    "enginesize": double.tryParse(engineCtrl.text) ?? 2.0,
+    "cylinders": int.tryParse(cylindersCtrl.text) ?? 4,
+    "vehicleclass": classCtrl.text,
+    "transmission": transmissionCtrl.text,
+    "fuel": fuelCtrl.text,
+    "distance_km": double.tryParse(distanceCtrl.text) ?? 150
+  };
 
-    setState(() => _isLoading = false);
-  }
+  final result = await ConsumoService.consultarConsumo(body);
 
-  // ---------- UI helpers ----------
+  setState(() {
+    _result = result;
+    _isLoading = false;
+  });
+}
 
   Widget _buildTopBar() {
     return Container(
@@ -101,7 +93,15 @@ class _HomeViewState extends State<HomeView> {
       ),
       child: Row(
         children: [
-          // Logo simples (pode trocar por Image.asset)
+          GestureDetector(
+            onTap: () => widget.viewModel.presentHome(),
+            child: Icon(
+              Icons.logout,
+              color: Colors.white.withOpacity(0.8),
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 12),
           Container(
             width: 28,
             height: 28,
@@ -125,11 +125,6 @@ class _HomeViewState extends State<HomeView> {
             ),
           ),
           const Spacer(),
-          Icon(
-            Icons.ios_share_rounded,
-            color: Colors.white.withOpacity(0.8),
-            size: 20,
-          ),
         ],
       ),
     );
@@ -328,43 +323,7 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _buildResult() {
     if (_result == null) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 24.0),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF020617).withOpacity(0.9),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.05),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Resultado',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Consumo L/100km: ${_result!["consumo_l_100km"].toStringAsFixed(2)}\n"
-              "Consumo total viagem: ${_result!["consumo_litros_viagem"].toStringAsFixed(2)} L\n"
-              "Km por litro: ${_result!["km_por_litro"].toStringAsFixed(2)}",
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return ResultCard(result: _result!);
   }
 
   @override
