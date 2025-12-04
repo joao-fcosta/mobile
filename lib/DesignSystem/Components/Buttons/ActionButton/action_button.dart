@@ -1,167 +1,146 @@
 import 'package:flutter/material.dart';
+import 'action_button_view_model.dart';
 import '../../../../resources/shared/colors.dart';
 import '../../../../resources/shared/styles.dart';
-import 'action_button_view_model.dart';
+import 'dart:math';
 
 class ActionButton extends StatelessWidget {
   final ActionButtonViewModel viewModel;
 
-  const ActionButton._({required this.viewModel});
+  const ActionButton._({Key? key, required this.viewModel}) : super(key: key);
 
   static Widget instantiate({required ActionButtonViewModel viewModel}) {
     return ActionButton._(viewModel: viewModel);
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
-    final bool isIconOnly = (viewModel.text.isEmpty && viewModel.icon != null) ||
-        viewModel.style == ActionButtonStyle.trash;
-
-    double verticalPadding;
-    double horizontalPadding;
-    double iconSize;
-    TextStyle textStyle;
+    double horizontalPadding = 32;
+    double verticalPadding = 12;
+    double iconSize = 20;
+    TextStyle buttonTextStyle = button3Semibold;
 
     switch (viewModel.size) {
       case ActionButtonSize.large:
-        verticalPadding = 16;
-        horizontalPadding = 32;
+        buttonTextStyle = button1Bold;
+        horizontalPadding = 38;
+        verticalPadding = 18;
         iconSize = 24;
-        textStyle = button1Bold;
         break;
       case ActionButtonSize.medium:
-        verticalPadding = 12;
-        horizontalPadding = 24;
-        iconSize = 24;
-        textStyle = button2Semibold;
+        buttonTextStyle = button2Semibold;
+        horizontalPadding = 28;
+        verticalPadding = 14;
+        iconSize = 20;
         break;
       case ActionButtonSize.small:
-        verticalPadding = 8;
+        buttonTextStyle = button3Semibold;
         horizontalPadding = 16;
-        iconSize = 16;
-        textStyle = button3Semibold;
+        verticalPadding = 8;
+        iconSize = 18;
         break;
     }
 
-    final double iconOnlyPadding = (verticalPadding + horizontalPadding) / 3;
-
-    Color backgroundColor;
-    Color foregroundColor;
-    Color disabledBackgroundColor;
-    Color disabledForegroundColor;
-    BorderSide? border;
+    // --- cores base estilo do layout ---
+    Color backgroundColor = brandPrimary;
+    Color textColor = Colors.white;
+    Color disabledBackground = brandPrimary.withOpacity(0.4);
+    Color disabledText = Colors.white.withOpacity(0.7);
 
     switch (viewModel.style) {
       case ActionButtonStyle.primary:
-        backgroundColor = brandPrimary;
-        foregroundColor = neutralDark;
+        backgroundColor = brandPrimary; // verde principal
         break;
       case ActionButtonStyle.secondary:
-        backgroundColor = brandSecondary;
-        foregroundColor = neutralLight;
-        break;
-      case ActionButtonStyle.destructive:
-      case ActionButtonStyle.trash:
-        backgroundColor = destructive;
-        foregroundColor = neutralLight;
+        backgroundColor = neutralGrey;
         break;
       case ActionButtonStyle.tertiary:
-        backgroundColor = neutralGrey.withOpacity(0.2);
-        foregroundColor = neutralDark;
-        break;
-      case ActionButtonStyle.outline:
         backgroundColor = Colors.transparent;
-        foregroundColor = brandPrimary;
-        border = const BorderSide(color: brandPrimary, width: 1.5);
         break;
-      case ActionButtonStyle.ghost:
-        backgroundColor = Colors.transparent;
-        foregroundColor = neutralLight;
-        break;
-      case ActionButtonStyle.primaryDarkIcon:
-        throw UnimplementedError();
     }
 
-    disabledBackgroundColor = neutralGrey;
-    disabledForegroundColor = neutralLight;
+    final bool enabled = viewModel.isEnabled;
 
-    Widget buildButtonChild() {
-      if (isIconOnly) {
-        return Icon(viewModel.icon, size: iconSize);
-      }
-      if (viewModel.icon != null) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(viewModel.icon, size: iconSize),
-            const SizedBox(width: 8),
-            Text(viewModel.text),
-          ],
-        );
-      }
-      return Text(viewModel.text);
-    }
-
-    final buttonStyle = ButtonStyle(
-      elevation: MaterialStateProperty.all(0),
-      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-        if (states.contains(MaterialState.disabled)) {
-          return viewModel.style == ActionButtonStyle.trash
-              ? neutralGrey
-              : disabledBackgroundColor.withOpacity(0.5);
-        }
-        return backgroundColor;
-      }),
-      foregroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-        if (states.contains(MaterialState.disabled)) {
-          return viewModel.style == ActionButtonStyle.trash
-              ? neutralLight
-              : disabledForegroundColor.withOpacity(0.4);
-        }
-        return foregroundColor;
-      }),
-      textStyle: MaterialStateProperty.all(textStyle),
-      padding: MaterialStateProperty.all(
-        isIconOnly
-            ? EdgeInsets.all(iconOnlyPadding)
-            : EdgeInsets.symmetric(
-          vertical: verticalPadding,
-          horizontal: horizontalPadding,
+    return Transform(
+      transform: Matrix4.skew(-0, 0),
+      alignment: Alignment.center,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10), // mais “pill”
+          gradient: viewModel.style == ActionButtonStyle.primary && enabled
+              ? LinearGradient(
+                  colors: [backgroundColor, backgroundColor],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                )
+              : null,
+          color: viewModel.style == ActionButtonStyle.primary
+              ? (enabled ? backgroundColor : disabledBackground)
+              : (enabled ? backgroundColor : disabledBackground),
+          boxShadow: enabled && viewModel.style == ActionButtonStyle.primary
+              ? [
+                  BoxShadow(
+                    color: backgroundColor.withOpacity(0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: ElevatedButton(
+          onPressed: enabled ? viewModel.onPressed : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            elevation: 0,
+            padding: EdgeInsets.symmetric(
+              vertical: verticalPadding,
+              horizontal: horizontalPadding,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(999),
+            ),
+            textStyle: buttonTextStyle,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (viewModel.icon != null) ...[
+                Transform(
+                  transform: Matrix4.skew(0, 0),
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: Center(
+                      child: Icon(
+                        viewModel.icon,
+                        size: iconSize,
+                        color: enabled ? textColor : disabledText,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Transform(
+                transform: Matrix4.skew(0, 0),
+                alignment: Alignment.center,
+                child: Text(
+                  viewModel.text, // sem .toUpperCase()
+                  style: buttonTextStyle.copyWith(
+                    color: enabled ? textColor : disabledText,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      shape: MaterialStateProperty.all(
-        isIconOnly 
-          ? const CircleBorder() 
-          : RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-      ),
-      side: MaterialStateProperty.all(border),
-      overlayColor: MaterialStateProperty.all(foregroundColor.withOpacity(0.1)),
-    );
-
-    if (viewModel.style == ActionButtonStyle.outline) {
-      return OutlinedButton(
-        onPressed: viewModel.onPressed,
-        style: buttonStyle,
-        child: buildButtonChild(),
-      );
-    }
-
-    if (viewModel.style == ActionButtonStyle.ghost ||
-        viewModel.style == ActionButtonStyle.tertiary) {
-      return TextButton(
-        onPressed: viewModel.onPressed,
-        style: buttonStyle,
-        child: buildButtonChild(),
-      );
-    }
-
-    return ElevatedButton(
-      onPressed: viewModel.onPressed,
-      style: buttonStyle,
-      child: buildButtonChild(),
     );
   }
 }
-

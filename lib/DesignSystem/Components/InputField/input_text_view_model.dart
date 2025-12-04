@@ -1,26 +1,37 @@
 import 'package:flutter/material.dart';
-
-enum InputFieldTheme { light, dark }
+import '../Buttons/ActionButton/action_button_view_model.dart';
 
 class InputTextViewModel {
   final TextEditingController controller;
-  final String? label;
-  final String hintText;
-  final InputFieldTheme theme;
-  final bool isPassword;
+
+  /// Texto em cima do campo: "Email", "Senha"...
+  final String label;
+
+  /// Texto dentro do campo: "seu@email.com"
+  final String? hintText;
+
+  bool password;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
   final bool isEnabled;
-  final IconData? prefixIcon;
   final String? Function(String?)? validator;
+  final VoidCallback? togglePasswordVisibility;
+  final ActionButtonViewModel? actionButtonViewModel;
+  final bool showActionButton;
+  final bool enableClearButton;
 
   InputTextViewModel({
     required this.controller,
-    this.label,
-    this.hintText = '',
-    this.theme = InputFieldTheme.dark,
-    this.isPassword = false,
-    this.isEnabled = true,
+    required this.label,
+    this.hintText,
+    this.password = false,
     this.prefixIcon,
+    this.suffixIcon,
+    this.isEnabled = true,
     this.validator,
+    this.togglePasswordVisibility,
+    this.actionButtonViewModel,
+    this.showActionButton = false,
+    this.enableClearButton = true,
   });
 }
-

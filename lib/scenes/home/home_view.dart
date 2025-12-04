@@ -77,38 +77,293 @@ class _HomeViewState extends State<HomeView> {
         setState(() => _result = jsonDecode(response.body));
       }
     } catch (e) {
-      print("Erro: $e");
+      // aqui você pode mostrar snackbar se quiser
+      debugPrint("Erro: $e");
     }
 
     setState(() => _isLoading = false);
   }
 
-  Widget _field(String label, TextEditingController c) {
-    return StyledInputField.instantiate(
-      viewModel: InputTextViewModel(
-        controller: c,
-        label: label,
-        theme: InputFieldTheme.dark,
+  // ---------- UI helpers ----------
+
+  Widget _buildTopBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF020617).withOpacity(0.95),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.6),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Logo simples (pode trocar por Image.asset)
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: brandPrimary,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: const Icon(
+              Icons.local_gas_station_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Text(
+            'ContaLitro',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const Spacer(),
+          Icon(
+            Icons.ios_share_rounded,
+            color: Colors.white.withOpacity(0.8),
+            size: 20,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildResult() {
-    if (_result == null) return const SizedBox();
+  Widget _buildHeader() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 24),
-        Text("Resultado:",
-            style: const TextStyle(color: Colors.white, fontSize: 18)),
+        const SizedBox(height: 16),
+        const Text(
+          'Dados do Veículo',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 8),
         Text(
-          "Consumo L/100km: ${_result!["consumo_l_100km"].toStringAsFixed(2)}\n"
-          "Consumo total viagem: ${_result!["consumo_litros_viagem"].toStringAsFixed(2)} L\n"
-          "Km por litro: ${_result!["km_por_litro"].toStringAsFixed(2)}",
-          style: const TextStyle(color: Colors.white70),
+          'Preencha as informações para calcular o\nconsumo',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 13,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _field({
+    required String label,
+    required TextEditingController controller,
+    String? hint,
+    IconData? icon,
+  }) {
+    return StyledInputField.instantiate(
+      viewModel: InputTextViewModel(
+        controller: controller,
+        label: label,
+        hintText: hint,
+        prefixIcon: icon != null
+            ? Icon(
+                icon,
+                size: 18,
+                color: Colors.white.withOpacity(0.8),
+              )
+            : null,
+        enableClearButton: false,
+      ),
+    );
+  }
+
+  Widget _buildFormCard() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF020617).withOpacity(0.9),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.08),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.45),
+            blurRadius: 24,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Ano / Fabricante
+          Row(
+            children: [
+              Expanded(
+                child: _field(
+                  label: 'Ano',
+                  controller: yearCtrl,
+                  hint: '2025',
+                  icon: Icons.calendar_today_outlined,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _field(
+                  label: 'Fabricante',
+                  controller: makeCtrl,
+                  hint: 'Marca',
+                  icon: Icons.directions_car_filled_outlined,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Modelo
+          _field(
+            label: 'Modelo',
+            controller: modelCtrl,
+            hint: 'Ex: INTEGRA, CIVIC, COROLLA',
+            icon: Icons.directions_car_outlined,
+          ),
+          const SizedBox(height: 16),
+
+          // Motor / Cilindros
+          Row(
+            children: [
+              Expanded(
+                child: _field(
+                  label: 'Motor',
+                  controller: engineCtrl,
+                  hint: '1.0L',
+                  icon: Icons.speed_outlined,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _field(
+                  label: 'Cilindros',
+                  controller: cylindersCtrl,
+                  hint: '4 cilindros',
+                  icon: Icons.auto_awesome_motion_outlined,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          _field(
+            label: 'Classe do Veículo',
+            controller: classCtrl,
+            hint: 'Selecione a classe',
+            icon: Icons.category_outlined,
+          ),
+          const SizedBox(height: 16),
+
+          _field(
+            label: 'Transmissão',
+            controller: transmissionCtrl,
+            hint: 'Tipo de câmbio',
+            icon: Icons.settings_suggest_outlined,
+          ),
+          const SizedBox(height: 16),
+
+          _field(
+            label: 'Combustível',
+            controller: fuelCtrl,
+            hint: 'Tipo de combustível',
+            icon: Icons.local_gas_station_outlined,
+          ),
+          const SizedBox(height: 16),
+
+          _field(
+            label: 'Distância da Viagem (km)',
+            controller: distanceCtrl,
+            hint: '100',
+            icon: Icons.location_on_outlined,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomSection() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ActionButton.instantiate(
+            viewModel: ActionButtonViewModel(
+              size: ActionButtonSize.large,
+              style: ActionButtonStyle.primary,
+              text: "Calcular Consumo",
+              onPressed: _consultar,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Preencha todos os campos para continuar',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.6),
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
         ),
       ],
+    );
+  }
+
+  Widget _buildResult() {
+    if (_result == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF020617).withOpacity(0.9),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.05),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Resultado',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Consumo L/100km: ${_result!["consumo_l_100km"].toStringAsFixed(2)}\n"
+              "Consumo total viagem: ${_result!["consumo_litros_viagem"].toStringAsFixed(2)} L\n"
+              "Km por litro: ${_result!["km_por_litro"].toStringAsFixed(2)}",
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -117,52 +372,42 @@ class _HomeViewState extends State<HomeView> {
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: neutralBlack.withOpacity(0.9),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+          backgroundColor: Colors.transparent,
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF020617),
+                  Color(0xFF020617),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: SafeArea(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    "Consulta de Consumo",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-
-                  _field("Ano", yearCtrl),
-                  const SizedBox(height: 16),
-                  _field("Marca", makeCtrl),
-                  const SizedBox(height: 16),
-                  _field("Modelo", modelCtrl),
-                  const SizedBox(height: 16),
-                  _field("Engine Size", engineCtrl),
-                  const SizedBox(height: 16),
-                  _field("Cilindros", cylindersCtrl),
-                  const SizedBox(height: 16),
-                  _field("Classe do Veículo", classCtrl),
-                  const SizedBox(height: 16),
-                  _field("Transmissão", transmissionCtrl),
-                  const SizedBox(height: 16),
-                  _field("Combustível", fuelCtrl),
-                  const SizedBox(height: 16),
-                  _field("Distância (KM)", distanceCtrl),
-                  const SizedBox(height: 32),
-
-                  ActionButton.instantiate(
-                    viewModel: ActionButtonViewModel(
-                      size: ActionButtonSize.large,
-                      style: ActionButtonStyle.primary,
-                      text: "Consultar",
-                      onPressed: _consultar,
+                  _buildTopBar(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      child: Column(
+                        children: [
+                          _buildHeader(),
+                          _buildFormCard(),
+                          _buildResult(),
+                          const SizedBox(height: 90), // respiro pro botão
+                        ],
+                      ),
                     ),
                   ),
-
-                  _buildResult(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+                    child: _buildBottomSection(),
+                  ),
                 ],
               ),
             ),
@@ -178,7 +423,7 @@ class _HomeViewState extends State<HomeView> {
                 size: 50.0,
               ),
             ),
-          )
+          ),
       ],
     );
   }

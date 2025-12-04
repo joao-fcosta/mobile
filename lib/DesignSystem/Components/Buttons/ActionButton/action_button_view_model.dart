@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
-enum ActionButtonSize { small, medium, large }
+enum ActionButtonSize{
+  small,
+  medium,
+  large
+}
 
-enum ActionButtonStyle {
+enum ActionButtonStyle{
   primary,
   secondary,
-  destructive,
-  outline,
-  ghost,
-  tertiary,
-  trash,
-  primaryDarkIcon,
+  tertiary
 }
 
 class ActionButtonViewModel {
@@ -18,14 +17,15 @@ class ActionButtonViewModel {
   final ActionButtonStyle style;
   final String text;
   final IconData? icon;
-  final VoidCallback? onPressed;
+  final Function() onPressed;
+  final bool isEnabled;
 
   ActionButtonViewModel({
-    this.size = ActionButtonSize.small,
-    this.style = ActionButtonStyle.primary,
-    this.text = '',
+    required this.size,
+    required this.style,
+    required this.text,
+    required this.onPressed,
     this.icon,
-    this.onPressed,
+    this.isEnabled = true,
   });
 }
-
